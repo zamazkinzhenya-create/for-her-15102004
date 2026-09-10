@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+  <title>Для тебя</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #2e1065;
+      overflow-x: hidden;
+      background: #0f0a1a;
+    }
+
+    .heart-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #1e1033 0%, #0f0a1a 70%);
+      z-index: 100;
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+    }
+
+    .heart-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .heart {
+      font-size: 180px;
+      cursor: pointer;
+      user-select: none;
+      line-height: 1;
+      filter: drop-shadow(0 0 30px rgba(192, 38, 211, 0.6));
+      animation: heartbeat 1.6s infinite;
+      transition: transform 0.3s ease;
+    }
+
+    .heart:hover {
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 45px rgba(232, 121, 249, 0.8));
+    }
+
+    @keyframes heartbeat {
+      0%   { transform: scale(1); }
+      14%  { transform: scale(1.18); }
+      28%  { transform: scale(1); }
+      42%  { transform: scale(1.18); }
+      70%  { transform: scale(1); }
+      100% { transform: scale(1); }
+    }
+
+    .heart-hint {
+      margin-top: 30px;
+      color: rgba(233, 213, 255, 0.7);
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      opacity: 0;
+      animation: fadeInHint 1.5s ease 0.8s forwards;
+    }
+
+    @keyframes fadeInHint {
+      to { opacity: 1; }
+    }
+
+    .main-screen {
+      opacity: 0;
+      transform: scale(0.96);
+      transition: all 0.7s ease;
+      max-width: 440px;
+      width: 100%;
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      min-height: 620px;
+    }
+
+    .main-screen.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .collage {
+      position: absolute;
+      inset: 0;
+      background: #1a1025;
+      transition: filter 1.2s ease;
+    }
+
+    .collage.blurred {
+      filter: blur(4px) brightness(0.78);
+    }
+
+    .collage img {
+      position: absolute;
+      object-fit: cover;
+      border-radius: 6px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+      border: 3px solid #fff;
+    }
+
+    .collage img:nth-child(1) {
+      width: 58%;
+      height: 48%;
+      top: 8%;
+      left: 6%;
+      transform: rotate(-6deg);
+      z-index: 2;
+    }
+
+    .collage img:nth-child(2) {
+      width: 48%;
+      height: 42%;
+      top: 12%;
+      right: 5%;
+      transform: rotate(5deg);
+      z-index: 3;
+    }
+
+    .collage img:nth-child(3) {
+      width: 52%;
+      height: 45%;
+      bottom: 10%;
+      left: 8%;
+      transform: rotate(4deg);
+      z-index: 2;
+    }
+
+    .collage img:nth-child(4) {
+      width: 46%;
+      height: 40%;
+      bottom: 12%;
+      right: 7%;
+      transform: rotate(-5deg);
+      z-index: 4;
+    }
+
+    .frame {
+      position: absolute;
+      inset: 0;
+      border: 10px solid #f5f0ff;
+      border-radius: 24px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      transition: background 1.2s ease;
+      z-index: 6;
+    }
+
+    .photo-overlay.darken {
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .form-card {
+      position: relative;
+      z-index: 7;
+      background: transparent;
+      padding: 28px 24px 32px;
+      border-radius: 24px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+      min-height: 100%;
+    }
+
+    .form-card.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .form-content {
+      transition: opacity 0.35s ease;
+    }
+
+    .form-content.hide {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+      color: #ffffff;
+      text-align: center;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.55);
+    }
+
+    .subtitle {
+      color: #f3e8ff;
+      margin-bottom: 22px;
+      font-size: 0.95rem;
+      text-align: center;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.45);
+    }
+
+    .section {
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 0.92rem;
+      margin-bottom: 9px;
+      color: #f3e8ff;
+      font-weight: 600;
+      text-align: center;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+    }
+
+    .datetime-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .datetime-row input {
+      flex: 1;
+      padding: 12px 13px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-radius: 14px;
+      font-size: 0.93rem;
+      color: #4c1d95;
+      background: rgba(255, 255, 255, 0.92);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .datetime-row input:focus {
+      border-color: #c4b5fd;
+    }
+
+    .activities {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .activity {
+      display: flex;
+      align-items: center;
+      padding: 11px 13px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(255,255,255,0.25);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .activity:hover {
+      border-color: #c4b5fd;
+      background: #ffffff;
+    }
+
+    .activity input {
+      margin-right: 10px;
+      width: 15px;
+      height: 15px;
+      accent-color: #7c3aed;
+    }
+
+    .activity span {
+      font-size: 0.93rem;
+      color: #4c1d95;
+    }
+
+    .activity.selected {
+      border-color: #7c3aed;
+      background: #ffffff;
+    }
+
+    button {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1.05rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(109, 40, 217, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .result {
+      position: absolute;
+      inset: 12px;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 18px;
+      padding: 32px 24px;
+      text-align: center;
+      z-index: 20;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      animation: resultIn 0.45s ease;
+    }
+
+    .result.show {
+      display: flex;
+    }
+
+    @keyframes resultIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .result h2 {
+      color: #5b21b6;
+      margin-bottom: 14px;
+      font-size: 1.3rem;
+    }
+
+    .result p {
+      color: #4c1d95;
+      line-height: 1.55;
+      font-size: 0.98rem;
+    }
+
+    .result .details {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #e9d5ff;
+      font-size: 0.95rem;
+      width: 100%;
+    }
+
+    .result-buttons {
+      margin-top: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .result-btn {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      color: white;
+      border: none;
+      padding: 13px 20px;
+      font-size: 0.98rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .result-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(109, 40, 217, 0.3);
+    }
+
+    .result-btn.secondary {
+      background: #f3e8ff;
+      color: #5b21b6;
+    }
+
+    .result-btn.secondary:hover {
+      background: #ede9fe;
+      box-shadow: none;
+    }
+
+    .copy-success {
+      margin-top: 10px;
+      color: #16a34a;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .copy-success.show {
+      opacity: 1;
+    }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      z-index: 999;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="heart-screen" id="heartScreen">
+    <div class="heart" id="heart">❤️</div>
+    <div class="heart-hint">Нажми</div>
+  </div>
+
+  <div class="main-screen" id="mainScreen">
+    <div class="collage" id="collage">
+      <img src="photo1.jpg" alt="Фото 1">
+      <img src="photo2.jpg" alt="Фото 2">
+      <img src="photo3.jpg" alt="Фото 3">
+      <img src="photo4.jpg" alt="Фото 4">
+    </div>
+
+    <div class="frame"></div>
+    <div class="photo-overlay" id="overlay"></div>
+
+    <div class="form-card" id="formCard">
+      <div class="form-content" id="formContent">
+        <h1>Привет, любимая</h1>
+        <p class="subtitle">Давай выберем, когда и куда сходим</p>
+
+        <div class="section">
+          <div class="section-title">Когда тебе удобно?</div>
+          <div class="datetime-row">
+            <input type="date" id="dateInput">
+            <input type="time" id="timeInput">
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Куда бы ты хотела?</div>
+          <div class="activities" id="activities">
+            <label class="activity">
+              <input type="radio" name="activity" value="кино">
+              <span>В кино</span>
+            </label>
+            <label class="activity">
+              <input type="radio" name="activity" value="машина">
+              <span>Покататься на машине (я решу вопросик)</span>
+            </label>
+            <label class="activity">
+              <input type="radio" name="activity" value="парк">
+              <span>Погулять в парке</span>
+            </label>
+            <label class="activity">
+              <input type="radio" name="activity" value="город">
+              <span>Поехать в другой город</span>
+            </label>
+            <label class="activity">
+              <input type="radio" name="activity" value="ужин">
+              <span>Романтический ужин</span>
+            </label>
+            <label class="activity">
+              <input type="radio" name="activity" value="сама">
+              <span>Придумаю сама</span>
+            </label>
+            <label class="activity">
+              <input type="radio" name="activity" value="сам">
+              <span>Придумай сам</span>
+            </label>
+          </div>
+        </div>
+
+        <button id="submitBtn" disabled>Подтвердить</button>
+      </div>
+
+      <div class="result" id="result">
+        <h2>Спасибо, что ты есть</h2>
+        <p id="resultText"></p>
+
+        <div class="result-buttons">
+          <button class="result-btn" id="copyBtn">Скопировать мой выбор</button>
+          <button class="result-btn secondary" id="telegramBtn">Отправить в Telegram</button>
+        </div>
+        <div class="copy-success" id="copySuccess">Скопировано!</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const heartScreen = document.getElementById('heartScreen');
+    const mainScreen = document.getElementById('mainScreen');
+    const formCard = document.getElementById('formCard');
+    const formContent = document.getElementById('formContent');
+    const collage = document.getElementById('collage');
+    const overlay = document.getElementById('overlay');
+    const heart = document.getElementById('heart');
+
+    heart.addEventListener('click', () => {
+      heartScreen.classList.add('hide');
+      setTimeout(() => {
+        mainScreen.classList.add('show');
+        setTimeout(() => {
+          collage.classList.add('blurred');
+          overlay.classList.add('darken');
+          formCard.classList.add('show');
+        }, 2500);
+      }, 300);
+    });
+
+    const dateInput = document.getElementById('dateInput');
+    const timeInput = document.getElementById('timeInput');
+    const activities = document.querySelectorAll('.activity');
+    const submitBtn = document.getElementById('submitBtn');
+    const result = document.getElementById('result');
+    const resultText = document.getElementById('resultText');
+    const copyBtn = document.getElementById('copyBtn');
+    const telegramBtn = document.getElementById('telegramBtn');
+    const copySuccess = document.getElementById('copySuccess');
+
+    let selectedActivity = null;
+    let finalMessage = '';
+
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+
+    function checkForm() {
+      const hasDate = dateInput.value !== '';
+      const hasTime = timeInput.value !== '';
+      const hasActivity = selectedActivity !== null;
+      submitBtn.disabled = !(hasDate && hasTime && hasActivity);
+    }
+
+    dateInput.addEventListener('change', checkForm);
+    timeInput.addEventListener('change', checkForm);
+
+    activities.forEach(item => {
+      item.addEventListener('click', () => {
+        activities.forEach(a => a.classList.remove('selected'));
+        item.classList.add('selected');
+        selectedActivity = item.querySelector('input').value;
+        checkForm();
+      });
+    });
+
+    function createConfetti() {
+      const colors = ['#7c3aed', '#a78bfa', '#c4b5fd', '#8b5cf6', '#ddd6fe', '#f5d0fe', '#e9d5ff'];
+      for (let i = 0; i < 80; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = Math.random() * 8 + 6 + 'px';
+        confetti.style.height = Math.random() * 8 + 6 + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        confetti.style.opacity = Math.random() * 0.7 + 0.3;
+        document.body.appendChild(confetti);
+
+        const animation = confetti.animate([
+          { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
+          { transform: `translateY(${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+        ], {
+          duration: Math.random() * 2000 + 2500,
+          easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          delay: Math.random() * 400
+        });
+        animation.onfinish = () => confetti.remove();
+      }
+    }
+
+    submitBtn.addEventListener('click', () => {
+      const date = new Date(dateInput.value);
+      const options = { weekday: 'long', day: 'numeric', month: 'long' };
+      const formattedDate = date.toLocaleDateString('ru-RU', options);
+      const time = timeInput.value;
+
+      const activityNames = {
+        'кино': 'в кино',
+        'машина': 'покататься на машине',
+        'парк': 'погулять в парке',
+        'город': 'поехать в другой город',
+        'ужин': 'на романтический ужин',
+        'сама': 'ты придумаешь сама',
+        'сам': 'я придумаю сам'
+      };
+
+      const activityText = activityNames[selectedActivity];
+
+      resultText.innerHTML = `
+        Я очень ценю тебя.<br>
+        Ценю каждый момент рядом с тобой,<br>
+        твою улыбку, твою поддержку и то,<br>
+        как рядом с тобой становится спокойно и хорошо.<br><br>
+        Спасибо, что ты у меня есть.
+        <div class="details">
+          Жду тебя <strong>${formattedDate}</strong><br>
+          в <strong>${time}</strong><br>
+          Идём ${activityText}
+        </div>
+      `;
+
+      // Текст для копирования и Telegram
+      finalMessage = `Привет!\nЯ выбрала:\n\nДата: ${formattedDate}\nВремя: ${time}\nЧто делаем: ${activityText}\n\nЖду тебя`;
+
+      formContent.classList.add('hide');
+      result.classList.add('show');
+      createConfetti();
+
+      // ===== Отправка на почту (Formspree) =====
+      // Раскомментируй и вставь свой endpoint, когда зарегистрируешься
+      /*
+      fetch("https://formspree.io/f/ТВОЙ_КОД", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: formattedDate,
+          time: time,
+          activity: activityText,
+          message: finalMessage
+        })
+      });
+      */
+    });
+
+    // Кнопка копировать
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(finalMessage).then(() => {
+        copySuccess.classList.add('show');
+        setTimeout(() => copySuccess.classList.remove('show'), 2000);
+      });
+    });
+
+    // Кнопка Telegram
+telegramBtn.addEventListener('click', () => {
+  const myUsername = 'PescadorEscalada'; // укажите свой юзернейм без символа @
+  const url = `https://t.me/${myUsername}?text=${encodeURIComponent(finalMessage)}`;
+  window.open(url, '_blank');
+});
+  </script>
+</body>
+</html>
